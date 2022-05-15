@@ -1,0 +1,21 @@
+[package]
+name = "money"
+version = "0.1.0"
+edition = "2021"
+authors = ["Michael Amrhein <michael@adrhinum.de>"]
+description = "Currency-safe computations with money amounts."
+readme = "README.md"
+homepage = "https://github.com/mamrhein/quantities.rs"
+repository = "https://github.com/mamrhein/quantities.rs"
+documentation = "https://docs.rs/quantities/"
+license-file = "LICENSE.TXT"
+keywords = ["money", "currency", "exchange"]
+categories = ["data-structures", "mathematics"]
+
+[dependencies]
+fpdec = "0.5.1"
+quantities = "0.8.0"
+
+[features]
+default = ["std"]
+std = []

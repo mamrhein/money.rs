@@ -1,0 +1,1 @@
+Currency-safe computations with money amounts.
