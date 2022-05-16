@@ -16,7 +16,16 @@
 extern crate core;
 extern crate quantities;
 
-use quantities::prelude::*;
+#[doc(hidden)]
+pub use core::cmp::Ordering;
+#[doc(hidden)]
+pub use core::fmt;
+#[doc(hidden)]
+pub use core::ops::{Add, Div, Mul, Sub};
+
+pub use quantities::{
+    Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
+};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Money {
@@ -201,11 +210,11 @@ mod tests {
 
     #[test]
     fn test_money() {
-        let amnt: AmountT = Amnt!(29.35);
+        let amnt: AmountT = Amnt!(27.95);
         let m = amnt * EUR;
         assert_eq!(m.amount, amnt);
         assert_eq!(m.unit, Currency::Euro);
         #[cfg(feature = "std")]
-        assert_eq!(m.to_string(), "29.35 EUR");
+        assert_eq!(m.to_string(), "27.95 EUR");
     }
 }
