@@ -1,4 +1,4 @@
-Currency-safe computations with money amounts.
+### Currency-safe computations with money amounts.
 
 `Money` is a special type of quantity. Its unit type is known as `Currency`.
 
@@ -28,7 +28,7 @@ Example:
 # let amnt = Amnt!(17.95);
 # let eur_amnt = amnt * EUR;
 # assert_eq!(eur_amnt.amount(), amnt);
-# assert_eq!(eur_amnt.unit(), Currency::Euro);
+# assert_eq!(eur_amnt.unit(), Currency::EUR);
 ```
 
 `Money` implements trait `quantities::Quantity`, so all operations on
