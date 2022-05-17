@@ -375,14 +375,25 @@ pub struct Money {
 
 impl Quantity for Money {
     type UnitType = Currency;
-    #[inline(always)]
+
+    #[inline]
     fn new(amount: AmountT, unit: Self::UnitType) -> Self {
+        if amount.n_frac_digits() > unit.minor_unit() {
+            panic!(
+                "{} exceeds the {} fractional digits allowed for {}",
+                amount,
+                unit.minor_unit(),
+                unit.symbol()
+            )
+        }
         Self { amount, unit }
     }
+
     #[inline(always)]
     fn amount(&self) -> AmountT {
         self.amount
     }
+
     #[inline(always)]
     fn unit(&self) -> Self::UnitType {
         self.unit
@@ -407,6 +418,7 @@ impl PartialOrd for Money {
 
 impl Add<Self> for Money {
     type Output = Self;
+
     #[inline(always)]
     fn add(self, rhs: Self) -> Self::Output {
         <Self as Quantity>::add(self, rhs)
@@ -415,6 +427,7 @@ impl Add<Self> for Money {
 
 impl Sub<Self> for Money {
     type Output = Self;
+
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self::Output {
         <Self as Quantity>::sub(self, rhs)
@@ -423,6 +436,7 @@ impl Sub<Self> for Money {
 
 impl Div<Self> for Money {
     type Output = AmountT;
+
     #[inline(always)]
     fn div(self, rhs: Self) -> Self::Output {
         <Self as Quantity>::div(self, rhs)
@@ -494,5 +508,12 @@ mod tests {
         assert_eq!(m.unit, Currency::EUR);
         #[cfg(feature = "std")]
         assert_eq!(m.to_string(), "27.95 EUR");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_money_exceed_minor_unit() {
+        let amnt: AmountT = Amnt!(7.905);
+        let _m = amnt * EUR;
     }
 }
