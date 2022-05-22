@@ -13,7 +13,7 @@ keywords = ["money", "currency", "exchange"]
 categories = ["data-structures", "mathematics"]
 
 [dependencies]
-quantities = { version = "0.8.0", features = ["fpdec"] }
+quantities = { version = "0.9.0", features = ["fpdec"] }
 
 [features]
 default = ["std"]
