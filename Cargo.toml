@@ -1,6 +1,6 @@
 [package]
-name = "money"
-version = "0.1.0"
+name = "moneta"
+version = "0.0.0"
 edition = "2021"
 authors = ["Michael Amrhein <michael@adrhinum.de>"]
 description = "Currency-safe computations with money amounts."

@@ -24,7 +24,7 @@ with an `AmountT` to create a `Money` instance.
 Example:
 
 ```rust
-# use money::{Amnt, Currency, Dec, Decimal, EUR, Money, Quantity, Unit};
+# use moneta::{Amnt, Currency, Dec, Decimal, EUR, Money, Quantity, Unit};
 # let amnt = Amnt!(17.95);
 # let eur_amnt = amnt * EUR;
 # assert_eq!(eur_amnt.amount(), amnt);
@@ -40,7 +40,7 @@ to the smallest fraction defined with the currency.
 Example:
 
 ```rust
-# use money::{Amnt, Currency, Dec, Decimal, EUR, Money, Quantity, Unit};
+# use moneta::{Amnt, Currency, Dec, Decimal, EUR, Money, Quantity, Unit};
 # let qty = Amnt!(3);
 # let price = Money::new(Amnt!(13.58), EUR);
 # let total = qty * price;

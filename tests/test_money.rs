@@ -9,9 +9,8 @@
 
 #[cfg(test)]
 mod test_money_formatting {
+    use moneta::{Dec, Decimal, USD, UYW, VUV};
     use quantities::Quantity;
-
-    use money::{Dec, Decimal, USD, UYW, VUV};
 
     #[test]
     fn test_unit_to_string() {
