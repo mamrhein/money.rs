@@ -7,6 +7,8 @@
 // $Source$
 // $Revision$
 
+use core::fmt;
+
 use crate::{AmountT, Money, Mul, Quantity, SIPrefix, Unit};
 
 #[doc = "Unit of quantity `Money`."]
@@ -884,6 +886,12 @@ impl Currency {
             Currency::ZMW => 2,
             Currency::ZWL => 2,
         }
+    }
+}
+
+impl fmt::Display for Currency {
+    fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as Unit>::fmt(&self, form)
     }
 }
 
