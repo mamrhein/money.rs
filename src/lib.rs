@@ -13,9 +13,11 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(dead_code)]
 
+extern crate alloc;
 extern crate core;
 extern crate quantities;
 
+use alloc::{format, string::String};
 #[doc(hidden)]
 pub use core::cmp::Ordering;
 #[doc(hidden)]
@@ -23,10 +25,11 @@ pub use core::fmt;
 #[doc(hidden)]
 pub use core::ops::{Add, Div, Mul, Sub};
 
-pub use iso_4217::Currency;
 pub use quantities::{
     Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
 };
+
+pub use iso_4217::Currency;
 
 mod iso_4217;
 
@@ -430,8 +433,21 @@ impl Div<Self> for Money {
 }
 
 impl fmt::Display for Money {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        <Self as Quantity>::fmt(self, f)
+    fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let tmp: String;
+        let amnt_non_neg = self.amount().is_positive();
+        let abs_amnt = self.amount().abs();
+        if let Some(prec) = form.precision() {
+            tmp = format!("{:.*} {}", prec, abs_amnt, self.unit())
+        } else {
+            tmp = format!(
+                "{:.*} {}",
+                self.unit().minor_unit() as usize,
+                abs_amnt,
+                self.unit()
+            )
+        }
+        form.pad_integral(amnt_non_neg, "", &tmp)
     }
 }
 
@@ -484,6 +500,8 @@ impl<PQ: Quantity> Div<Rate<Money, PQ>> for Money {
 
 #[cfg(test)]
 mod tests {
+    use alloc::string::ToString;
+
     use super::*;
 
     #[test]
@@ -492,7 +510,6 @@ mod tests {
         let m = amnt * EUR;
         assert_eq!(m.amount, amnt);
         assert_eq!(m.unit, Currency::EUR);
-        #[cfg(feature = "std")]
         assert_eq!(m.to_string(), "27.95 EUR");
     }
 }
