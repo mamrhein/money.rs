@@ -15,6 +15,7 @@
 
 extern crate alloc;
 extern crate core;
+extern crate fpdec;
 extern crate quantities;
 
 use alloc::{format, string::String};
@@ -25,11 +26,11 @@ pub use core::fmt;
 #[doc(hidden)]
 pub use core::ops::{Add, Div, Mul, Sub};
 
+use fpdec::{DivRounded, MulRounded};
+pub use iso_4217::Currency;
 pub use quantities::{
     Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
 };
-
-pub use iso_4217::Currency;
 
 mod iso_4217;
 
@@ -470,7 +471,10 @@ impl Mul<Money> for AmountT {
 
     #[inline(always)]
     fn mul(self, rhs: Money) -> Self::Output {
-        Self::Output::new(self * rhs.amount(), rhs.unit())
+        Self::Output::new(
+            self.mul_rounded(rhs.amount(), rhs.unit().minor_unit()),
+            rhs.unit(),
+        )
     }
 }
 
@@ -479,7 +483,10 @@ impl Mul<AmountT> for Money {
 
     #[inline(always)]
     fn mul(self, rhs: AmountT) -> Self::Output {
-        Self::Output::new(self.amount() * rhs, self.unit())
+        Self::Output::new(
+            self.amount().mul_rounded(rhs, self.unit().minor_unit()),
+            self.unit(),
+        )
     }
 }
 
@@ -488,7 +495,10 @@ impl Div<AmountT> for Money {
 
     #[inline(always)]
     fn div(self, rhs: AmountT) -> Self::Output {
-        Self::Output::new(self.amount() / rhs, self.unit())
+        Self::Output::new(
+            self.amount().div_rounded(rhs, self.unit().minor_unit()),
+            self.unit(),
+        )
     }
 }
 

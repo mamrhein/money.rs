@@ -715,7 +715,7 @@ impl Currency {
         Currency::ZWL,
     ];
 
-    pub fn minor_unit(&self) -> u8 {
+    pub const fn minor_unit(&self) -> u8 {
         match self {
             Currency::AED => 2,
             Currency::AFN => 2,

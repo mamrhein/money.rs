@@ -9,8 +9,7 @@
 
 #[cfg(test)]
 mod test_money_formatting {
-    use moneta::{Dec, Decimal, USD, UYW, VUV};
-    use quantities::Quantity;
+    use moneta::{Dec, Decimal, Quantity, USD, UYW, VUV};
 
     #[test]
     fn test_unit_to_string() {
@@ -50,5 +49,66 @@ mod test_money_formatting {
             format!("{} {:+12.4}", val.unit(), val.amount()),
             "UYW    +834.2870"
         );
+    }
+}
+
+#[cfg(test)]
+mod test_money_ops {
+    use moneta::{Dec, Decimal, Quantity, USD, UYW};
+
+    #[test]
+    fn test_add_sub_same_currency() {
+        let x = Dec!(27.4) * USD;
+        let y = Dec!(35.89) * USD;
+        let z = x + y;
+        assert_eq!(z.amount(), Dec!(63.29));
+        assert_eq!(z.unit(), USD);
+        assert_eq!(x + y, y + x);
+        let z = x - y;
+        assert_eq!(z.amount(), Dec!(-8.49));
+        assert_eq!(z.unit(), USD);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_add_diff_currency() {
+        let x = Dec!(27.4) * USD;
+        let y = Dec!(35.89) * UYW;
+        let _z = x + y;
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_sub_diff_currency() {
+        let x = Dec!(27.4) * USD;
+        let y = Dec!(35.89) * UYW;
+        let _z = x - y;
+    }
+
+    #[test]
+    fn test_mul_amnt_money() {
+        let x = Dec!(7.5);
+        let y = Dec!(23.85) * USD;
+        let z = x * y;
+        assert_eq!(z.amount(), Dec!(178.88));
+        assert_eq!(z.unit(), USD);
+        assert_eq!(x * y, y * x);
+        let y = Dec!(23.85) * UYW;
+        let z = x * y;
+        assert_eq!(z.amount(), Dec!(178.875));
+        assert_eq!(z.unit(), UYW);
+    }
+
+    #[test]
+    fn test_div_money_amnt() {
+        let x = Dec!(700.5) * USD;
+        let y = Dec!(23.85);
+        let z = x / y;
+        assert_eq!(z.amount(), Dec!(29.37));
+        assert_eq!(z.unit(), USD);
+        let x = Dec!(700.5) * UYW;
+        let z = x / y;
+        assert_eq!(z.amount(), Dec!(29.3711));
+        assert_eq!(z.unit(), UYW);
     }
 }
