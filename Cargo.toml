@@ -13,6 +13,7 @@ keywords = ["money", "currency", "exchange"]
 categories = ["data-structures", "mathematics"]
 
 [dependencies]
+fpdec = "0.5.2"
 quantities = { version = "0.9.0", features = ["fpdec"] }
 
 [features]
