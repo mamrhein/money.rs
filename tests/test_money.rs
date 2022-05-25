@@ -112,3 +112,49 @@ mod test_money_ops {
         assert_eq!(z.unit(), UYW);
     }
 }
+
+#[cfg(test)]
+mod test_money_rated_to_qty {
+    use moneta::{Dec, Decimal, Money, Quantity, USD, UYW};
+    use quantities::prelude::*;
+
+    #[quantity]
+    #[ref_unit(Kilogram, "kg", KILO, "Reference unit of quantity `Mass`")]
+    #[unit(Gram, "g", NONE, 0.001, "0.001·kg")]
+    struct Mass {}
+
+    #[test]
+    fn test_rate_qty_per_money() {
+        let d = Dec!(7.5) * USD;
+        let r = Rate::<Mass, Money>::new(Dec!(3), KILOGRAM, Dec!(10), USD);
+        let m = d * r;
+        assert_eq!(m, Dec!(2.25) * KILOGRAM);
+        assert_eq!(d * r, r * d);
+        assert_eq!(m / r, d);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_money_mul_rate_diff_currency() {
+        let d = Dec!(7.5) * USD;
+        let r = Rate::<Mass, Money>::new(Dec!(3), KILOGRAM, Dec!(10), UYW);
+        let _m = d * r;
+    }
+
+    #[test]
+    fn test_rate_money_per_qty() {
+        let d = Dec!(7.5) * USD;
+        let r = Rate::<Money, Mass>::new(Dec!(3), USD, Dec!(10), KILOGRAM);
+        let m = d / r;
+        assert_eq!(m, Dec!(25) * KILOGRAM);
+        assert_eq!(m * r, d);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_money_div_rate_diff_currency() {
+        let d = Dec!(7.5) * USD;
+        let r = Rate::<Money, Mass>::new(Dec!(3), UYW, Dec!(10), KILOGRAM);
+        let _mr = d / r;
+    }
+}
