@@ -35,7 +35,7 @@ use crate::{AmountT, Currency};
 /// // 1 USD ≣ 0.9683 EUR =>
 /// let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.9683));
 /// ```
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ExchangeRate {
     unit_currency: Currency,
     unit_multiple: u32,
@@ -78,24 +78,66 @@ impl ExchangeRate {
         }
     }
 
+    /// Currency to be converted from, aka base currency
     #[inline(always)]
     pub fn unit_currency(&self) -> Currency {
         self.unit_currency
     }
 
+    /// Amount of base currency
     #[inline(always)]
     pub fn unit_multiple(&self) -> u32 {
         self.unit_multiple
     }
 
+    /// Currency to be converted to, aka price currency
     #[inline(always)]
     pub fn term_currency(&self) -> Currency {
         self.term_currency
     }
 
+    /// Equivalent amount of term currency
     #[inline(always)]
     pub fn term_amount(&self) -> AmountT {
         self.term_amount
+    }
+
+    /// Relative value of term currency to unit currency
+    #[inline(always)]
+    pub fn rate(&self) -> AmountT {
+        self.term_amount() / self.unit_multiple()
+    }
+
+    /// Inverted rate, i.e. relative value of unit currency to term currency
+    #[inline(always)]
+    pub fn inverse_rate(&self) -> AmountT {
+        self.unit_multiple() / self.term_amount()
+    }
+
+    /// Returns a tuple of unit currency, term currency and rate.
+    #[inline(always)]
+    pub fn quotation(&self) -> (Currency, Currency, AmountT) {
+        (self.unit_currency(), self.term_currency(), self.rate())
+    }
+
+    /// Returns a tuple of term currency, unit currency and inverse rate.
+    #[inline(always)]
+    pub fn inverse_quotation(&self) -> (Currency, Currency, AmountT) {
+        (
+            self.term_currency(),
+            self.unit_currency(),
+            self.inverse_rate(),
+        )
+    }
+
+    /// Returns the inversion of `self`.
+    pub fn inverted(&self) -> ExchangeRate {
+        ExchangeRate::new(
+            self.term_currency,
+            1,
+            self.unit_currency,
+            self.inverse_rate(),
+        )
     }
 }
 
@@ -109,8 +151,19 @@ mod tests {
         let rate = ExchangeRate::new(USD, 5, EUR, Amnt!(4.8307));
         assert_eq!(rate.unit_currency(), Currency::USD);
         assert_eq!(rate.term_currency(), Currency::EUR);
-        assert_eq!(rate.unit_multiple, 1);
-        assert_eq!(rate.term_amount, Amnt!(0.96614));
+        assert_eq!(rate.unit_multiple(), 1);
+        assert_eq!(rate.term_amount(), Amnt!(0.96614));
+        assert_eq!(rate.rate(), Amnt!(0.96614));
+        assert_eq!(rate.inverse_rate(), Amnt!(1.035046680605295299));
+        assert_eq!(rate.quotation(), (USD, EUR, Amnt!(0.96614)));
+        assert_eq!(
+            rate.inverse_quotation(),
+            (EUR, USD, Amnt!(1.035046680605295299))
+        );
+        assert_eq!(
+            rate.inverted(),
+            ExchangeRate::new(EUR, 1, USD, Amnt!(1.035047))
+        );
     }
 
     #[test]
