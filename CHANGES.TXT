@@ -1,3 +1,5 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.2.0     Force rounding of Money::amount to Currency::minor_unit.
+
 0.1.1     First public version.
