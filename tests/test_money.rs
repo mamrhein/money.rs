@@ -126,11 +126,13 @@ mod test_money_rated_to_qty {
     #[test]
     fn test_rate_qty_per_money() {
         let d = Dec!(7.5) * USD;
-        let r = Rate::<Mass, Money>::new(Dec!(3), KILOGRAM, Dec!(10), USD);
+        let r = Rate::<Mass, Money>::new(Dec!(3.5), KILOGRAM, Dec!(10), USD);
         let m = d * r;
-        assert_eq!(m, Dec!(2.25) * KILOGRAM);
+        assert_eq!(m, Dec!(2.625) * KILOGRAM);
         assert_eq!(d * r, r * d);
         assert_eq!(m / r, d);
+        let m = Dec!(450) * GRAM;
+        assert_eq!(m / r, Dec!(1.29) * USD);
     }
 
     #[test]
@@ -148,6 +150,8 @@ mod test_money_rated_to_qty {
         let m = d / r;
         assert_eq!(m, Dec!(25) * KILOGRAM);
         assert_eq!(m * r, d);
+        let m = Dec!(450) * GRAM;
+        assert_eq!(m * r, Dec!(0.14) * USD);
     }
 
     #[test]
