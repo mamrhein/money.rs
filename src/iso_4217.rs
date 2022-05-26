@@ -174,7 +174,7 @@ pub enum Currency {
     #[doc = "Official currency in Fiji"]
     FJD,
     #[doc = "Falkland Islands Pound"]
-    #[doc = "Official currency in Falkland Islands (The) [Malvinas]"]
+    #[doc = "Official currency in Falkland Islands (The) (Malvinas)"]
     FKP,
     #[doc = "Pound Sterling"]
     #[doc = "Official currency in Guernsey, Isle Of Man, Jersey, United \
