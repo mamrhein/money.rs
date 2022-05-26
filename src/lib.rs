@@ -26,7 +26,7 @@ pub use core::fmt;
 #[doc(hidden)]
 pub use core::ops::{Add, Div, Mul, Sub};
 
-use fpdec::{DivRounded, MulRounded};
+use fpdec::{DivRounded, MulRounded, Round};
 pub use iso_4217::Currency;
 pub use quantities::{
     Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
@@ -382,15 +382,10 @@ impl Quantity for Money {
 
     #[inline]
     fn new(amount: AmountT, unit: Self::UnitType) -> Self {
-        if amount.n_frac_digits() > unit.minor_unit() {
-            panic!(
-                "{} exceeds the {} fractional digits allowed for {}",
-                amount,
-                unit.minor_unit(),
-                unit.symbol()
-            )
+        Self {
+            amount: amount.round(unit.minor_unit() as i8),
+            unit,
         }
-        Self { amount, unit }
     }
 
     #[inline(always)]
@@ -538,9 +533,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_money_exceed_minor_unit() {
         let amnt: AmountT = Amnt!(7.905);
-        let _m = amnt * EUR;
+        let m = amnt * EUR;
+        assert_eq!(m.amount, amnt.round(EUR.minor_unit() as i8));
     }
 }
