@@ -26,12 +26,14 @@ pub use core::fmt;
 #[doc(hidden)]
 pub use core::ops::{Add, Div, Mul, Sub};
 
+pub use exchange::ExchangeRate;
 use fpdec::{DivRounded, MulRounded, Round};
 pub use iso_4217::Currency;
 pub use quantities::{
     Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
 };
 
+mod exchange;
 mod iso_4217;
 
 #[doc = "UAE Dirham"]
