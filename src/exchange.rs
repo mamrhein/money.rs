@@ -7,12 +7,12 @@
 // $Source$
 // $Revision$
 
-use core::cmp::min;
+use core::{cmp::min, ops::Mul};
 
 use fpdec::{Decimal, DivRounded};
 use fpdec_core::ten_pow;
 
-use crate::{AmountT, Currency};
+use crate::{AmountT, Currency, Money, Quantity};
 
 /// Basic representation of a conversion factor between two currencies.
 ///
@@ -143,6 +143,46 @@ impl ExchangeRate {
             self.unit_currency,
             self.inverse_rate(),
         )
+    }
+}
+
+impl Mul<Money> for ExchangeRate {
+    type Output = Money;
+
+    /// Returns `Money` equivalent of `rhs` in term currency.
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * Currency of `rhs` is not equal to `self.unit_currency`.
+    fn mul(self, rhs: Money) -> Self::Output {
+        if self.unit_currency() != rhs.unit() {
+            panic!(
+                "Can't divide '{}' by '{}'",
+                rhs.unit(),
+                self.unit_currency(),
+            );
+        }
+        Self::Output::new(rhs.amount() * self.rate(), self.term_currency)
+    }
+}
+
+impl Mul<ExchangeRate> for Money {
+    type Output = Money;
+
+    /// Returns `Money` equivalent of `self` in term currency.
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * Currency of `self` is not equal to `rhs.unit_currency`.
+    fn mul(self, rhs: ExchangeRate) -> Self::Output {
+        if self.unit() != rhs.unit_currency() {
+            panic!(
+                "Can't divide '{}' by '{}'",
+                self.unit(),
+                rhs.unit_currency(),
+            );
+        }
+        Self::Output::new(self.amount() * rhs.rate(), rhs.term_currency)
     }
 }
 
