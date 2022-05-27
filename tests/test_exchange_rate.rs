@@ -55,3 +55,19 @@ mod test_money_exchange {
         let _eur = usd / rate;
     }
 }
+
+#[cfg(test)]
+mod test_triangulation {
+    use moneta::{Dec, Decimal, ExchangeRate, EUR, HKD, USD};
+
+    #[test]
+    fn test_mul_rates() {
+        let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let eur_2_hkd = ExchangeRate::new(EUR, 1, HKD, Dec!(8.225));
+        let usd_2_hkd = usd_2_eur * eur_2_hkd;
+        assert_eq!(usd_2_hkd.unit_currency(), USD);
+        assert_eq!(usd_2_hkd.unit_multiple(), 1);
+        assert_eq!(usd_2_hkd.term_currency(), HKD);
+        assert_eq!(usd_2_hkd.term_amount(), Dec!(8.066916));
+    }
+}

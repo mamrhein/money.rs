@@ -209,6 +209,42 @@ impl Div<ExchangeRate> for Money {
     }
 }
 
+impl Mul<ExchangeRate> for ExchangeRate {
+    type Output = Self;
+
+    /// Returns "triangulated" exchange rate.
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * No unit currency of a multiplicant does equal the term currency of the
+    ///   other multiplicant.
+    fn mul(self, rhs: ExchangeRate) -> Self::Output {
+        if self.unit_currency() == rhs.term_currency() {
+            return ExchangeRate::new(
+                rhs.unit_currency(),
+                1,
+                self.term_currency(),
+                self.rate() * rhs.rate(),
+            );
+        } else if self.term_currency() == rhs.unit_currency() {
+            return ExchangeRate::new(
+                self.unit_currency(),
+                1,
+                rhs.term_currency(),
+                self.rate() * rhs.rate(),
+            );
+        } else {
+            panic!(
+                "Can't multiply '{}/{}' and '{}/{}'.",
+                self.term_currency(),
+                self.unit_currency(),
+                rhs.term_currency(),
+                rhs.unit_currency(),
+            );
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
