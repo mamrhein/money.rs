@@ -7,7 +7,10 @@
 // $Source$
 // $Revision$
 
-use core::{cmp::min, ops::Mul};
+use core::{
+    cmp::min,
+    ops::{Div, Mul},
+};
 
 use fpdec::{Decimal, DivRounded};
 use fpdec_core::ten_pow;
@@ -183,6 +186,26 @@ impl Mul<ExchangeRate> for Money {
             );
         }
         Self::Output::new(self.amount() * rhs.rate(), rhs.term_currency)
+    }
+}
+
+impl Div<ExchangeRate> for Money {
+    type Output = Money;
+
+    /// Returns `Money` equivalent of `rhs` in unit currency.
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * Currency of `self` is not equal to `rhs.term_currency`.
+    fn div(self, rhs: ExchangeRate) -> Self::Output {
+        if self.unit() != rhs.term_currency() {
+            panic!(
+                "Can't divide '{}' by '{}'",
+                self.unit(),
+                rhs.term_currency(),
+            );
+        }
+        Self::Output::new(self.amount() / rhs.rate(), rhs.unit_currency)
     }
 }
 

@@ -58,12 +58,15 @@ Likewise, dividing an amount in some currency with an exchange rate with the
 same currency as term currency results in the equivalent amount in unit
 currency.
 
-Example:
+Examples:
 
 ```rust
-# use moneta::{Dec, Decimal, ExchangeRate, EUR, USD};
+# use moneta::{Dec, Decimal, ExchangeRate, EUR, HKD, USD};
 let usd = Dec!(17.95) * USD;
 let rate = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
 let eur = usd * rate;
 assert_eq!(eur.to_string(), "17.61 EUR");
+let rate = ExchangeRate::new(HKD, 10, EUR, Dec!(1.187253));
+let hkd = eur / rate;
+assert_eq!(hkd.to_string(), "148.33 HKD");
 ```

@@ -37,4 +37,21 @@ mod test_money_exchange {
         let rate = ExchangeRate::new(EUR, 1, USD, Dec!(0.98078));
         let _eur = rate * usd;
     }
+
+    #[test]
+    fn test_convert_by_div() {
+        let usd = Dec!(17.95) * USD;
+        let rate = ExchangeRate::new(EUR, 1, USD, Dec!(1.0807));
+        let eur = usd / rate;
+        assert_eq!(eur.unit(), EUR);
+        assert_eq!(eur.amount(), Dec!(16.61));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_money_div_rate_fails() {
+        let usd = Dec!(17.95) * USD;
+        let rate = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let _eur = usd / rate;
+    }
 }
