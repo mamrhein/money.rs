@@ -46,10 +46,12 @@ pub struct ExchangeRate {
 impl ExchangeRate {
     /// Returns a new instance of `ExchangeRate`.
     ///
-    /// Panics:
+    /// ### Panics
+    /// The function panics in the following cases:
     /// * `unit_currency` is equal to `term_currency`.
-    /// * `unit_multiple == 0` or `unit_multiple > 1000000000`
+    /// * `unit_multiple` == 0
     /// * `term_amount` <= 0
+    /// * adjusted unit multiple > 1_000_000_000
     pub fn new(
         unit_currency: Currency,
         unit_multiple: u32,
@@ -59,6 +61,9 @@ impl ExchangeRate {
         if unit_currency == term_currency {
             panic!("The currencies given must not be identical.")
         }
+        if unit_multiple == 0 {
+            panic!("Unit multiple must be >= 1.")
+        }
         if !term_amount.is_positive() {
             panic!("Term amount must be > 0.")
         }
@@ -67,14 +72,14 @@ impl ExchangeRate {
         let magn = Decimal::from(unit_multiple).magnitude()
             - min(0, term_amount.magnitude() + 1);
         if magn < 0 || magn > 9 {
-            panic!("Adjusted unit multiple must be >= 1 and <= 1000000000.")
+            panic!("Adjusted unit multiple must be <= 1_000_000_000.")
         }
-        let mult = ten_pow(magn as u8) as u32;
         Self {
             unit_currency,
-            unit_multiple: mult,
+            unit_multiple: ten_pow(magn as u8) as u32,
             term_currency,
-            term_amount: (term_amount * mult).div_rounded(unit_multiple, 6),
+            term_amount: (term_amount * ten_pow(magn as u8))
+                .div_rounded(unit_multiple, 6),
         }
     }
 
