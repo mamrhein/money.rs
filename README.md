@@ -25,10 +25,10 @@ Example:
 
 ```rust
 # use moneta::{Amnt, Currency, Dec, Decimal, EUR, Money, Quantity, Unit};
-# let amnt = Amnt!(17.95);
-# let eur_amnt = amnt * EUR;
-# assert_eq!(eur_amnt.amount(), amnt);
-# assert_eq!(eur_amnt.unit(), Currency::EUR);
+let amnt = Amnt!(17.95);
+let eur_amnt = amnt * EUR;
+assert_eq!(eur_amnt.amount(), amnt);
+assert_eq!(eur_amnt.unit(), Currency::EUR);
 ```
 
 `Money` implements trait `quantities::Quantity`, so all operations on
@@ -41,10 +41,10 @@ Example:
 
 ```rust
 # use moneta::{Amnt, Currency, Dec, Decimal, EUR, Money, Quantity, Unit};
-# let qty = Amnt!(3.2);
-# let price = Money::new(Amnt!(13.58), EUR);
-# let total = qty * price;
-# assert_eq!(total.to_string(), "43.46 EUR");
+let qty = Amnt!(3.2);
+let price = Money::new(Amnt!(13.58), EUR);
+let total = qty * price;
+assert_eq!(total.to_string(), "43.46 EUR");
 ```
 
 A conversion factor between two currencies can be defined by using the
