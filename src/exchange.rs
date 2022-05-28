@@ -122,13 +122,13 @@ impl ExchangeRate {
         self.unit_multiple() / self.term_amount()
     }
 
-    /// Returns a tuple of unit currency, term currency and rate.
+    /// Returns the tuple of unit currency, term currency and rate.
     #[inline(always)]
     pub fn quotation(&self) -> (Currency, Currency, AmountT) {
         (self.unit_currency(), self.term_currency(), self.rate())
     }
 
-    /// Returns a tuple of term currency, unit currency and inverse rate.
+    /// Returns the tuple of term currency, unit currency and inverse rate.
     #[inline(always)]
     pub fn inverse_quotation(&self) -> (Currency, Currency, AmountT) {
         (
@@ -152,7 +152,7 @@ impl ExchangeRate {
 impl Mul<Money> for ExchangeRate {
     type Output = Money;
 
-    /// Returns `Money` equivalent of `rhs` in term currency.
+    /// Returns the equivalent of `rhs` in term currency.
     ///
     /// ### Panics
     /// The function panics in the following cases:
@@ -172,7 +172,7 @@ impl Mul<Money> for ExchangeRate {
 impl Mul<ExchangeRate> for Money {
     type Output = Money;
 
-    /// Returns `Money` equivalent of `self` in term currency.
+    /// Returns the equivalent of `self` in term currency.
     ///
     /// ### Panics
     /// The function panics in the following cases:
@@ -192,7 +192,7 @@ impl Mul<ExchangeRate> for Money {
 impl Div<ExchangeRate> for Money {
     type Output = Money;
 
-    /// Returns `Money` equivalent of `rhs` in unit currency.
+    /// Returns the equivalent of `rhs` in unit currency.
     ///
     /// ### Panics
     /// The function panics in the following cases:
@@ -212,7 +212,12 @@ impl Div<ExchangeRate> for Money {
 impl Mul<ExchangeRate> for ExchangeRate {
     type Output = Self;
 
-    /// Returns "triangulated" exchange rate.
+    /// Returns the "triangulated" exchange rate.
+    ///
+    /// self.unit_currency == rhs.term_currency
+    ///     => self.term_currency / rhs.unit_currency
+    /// self.term_currency == rhs.unit_currency
+    ///     => rhs.term_currency / self.unit_currency
     ///
     /// ### Panics
     /// The function panics in the following cases:

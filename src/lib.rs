@@ -7,8 +7,6 @@
 // $Source$
 // $Revision$
 
-//! Definition of basic quantity `Money`.
-
 #![doc = include_str ! ("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(dead_code)]
@@ -373,6 +371,25 @@ pub const ZMW: Currency = Currency::ZMW;
 #[doc = "Zimbabwe Dollar"]
 pub const ZWL: Currency = Currency::ZWL;
 
+/// Represents a money amount, i.e. the combination of a numerical value and a
+/// money unit, aka. currency.
+///
+/// Instances of `Money` can be created by:
+/// * calling fn `Money::new`, providing a numerical amount and a `Currency`, or
+/// * multiplying a numerical amount and a `Currency`.
+///
+/// The given amount is rounded to the number of fractional decimal digits
+/// defined by the `Currency` unit (see `Currency.minor_unit()`.
+///
+/// Examples:
+///
+/// ```rust
+/// # use moneta::{Dec, Decimal, Money, Quantity, EUR};
+/// let m = Money::new(Dec!(38.5), EUR);
+/// assert_eq!(m.to_string(), "38.50 EUR");
+/// let m = Dec!(38.497) * EUR;
+/// assert_eq!(m.to_string(), "38.50 EUR");
+/// ```
 #[derive(Copy, Clone, Debug)]
 pub struct Money {
     amount: AmountT,
@@ -382,6 +399,10 @@ pub struct Money {
 impl Quantity for Money {
     type UnitType = Currency;
 
+    /// Returns a new instance of `Money`.
+    ///
+    /// The given amount is rounded to the number of fractional decimal digits
+    /// defined by the `Currency` unit.
     #[inline]
     fn new(amount: AmountT, unit: Self::UnitType) -> Self {
         Self {
@@ -390,11 +411,13 @@ impl Quantity for Money {
         }
     }
 
+    /// The numerical amount of `self`.
     #[inline(always)]
     fn amount(&self) -> AmountT {
         self.amount
     }
 
+    /// The `Currency` unit of `self`.
     #[inline(always)]
     fn unit(&self) -> Self::UnitType {
         self.unit
@@ -404,6 +427,8 @@ impl Quantity for Money {
 impl Eq for Money {}
 
 impl PartialEq<Self> for Money {
+    /// Two `Money` instances are equal, if they have the same `Currency` unit
+    /// and their numerical amounts are equal.
     #[inline(always)]
     fn eq(&self, other: &Self) -> bool {
         <Self as Quantity>::eq(self, other)
@@ -411,6 +436,8 @@ impl PartialEq<Self> for Money {
 }
 
 impl PartialOrd for Money {
+    /// Returns the numerical order of the amounts of the compared instances, if
+    /// their `Currency` units are identical, otherwise `None`.
     #[inline(always)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         <Self as Quantity>::partial_cmp(self, other)
@@ -420,6 +447,21 @@ impl PartialOrd for Money {
 impl Add<Self> for Money {
     type Output = Self;
 
+    /// Returns the sum of the two operands.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Money, Quantity, EUR};
+    /// let x = Money::new(Dec!(38.5), EUR);
+    /// let y = Dec!(8.397) * EUR;
+    /// let z = x + y;
+    /// assert_eq!(z.to_string(), "46.90 EUR")
+    /// ```
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * The operands have different `Currency` units.
     #[inline(always)]
     fn add(self, rhs: Self) -> Self::Output {
         <Self as Quantity>::add(self, rhs)
@@ -429,6 +471,21 @@ impl Add<Self> for Money {
 impl Sub<Self> for Money {
     type Output = Self;
 
+    /// Returns the difference of the two operands.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Money, Quantity, EUR};
+    /// let x = Money::new(Dec!(38.5), EUR);
+    /// let y = Dec!(8.397) * EUR;
+    /// let z = x - y;
+    /// assert_eq!(z.to_string(), "30.10 EUR")
+    /// ```
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * The operands have different `Currency` units.
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self::Output {
         <Self as Quantity>::sub(self, rhs)
@@ -438,6 +495,21 @@ impl Sub<Self> for Money {
 impl Div<Self> for Money {
     type Output = AmountT;
 
+    /// Returns the quotient of the two operands' amounts.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Money, Quantity, EUR};
+    /// let x = Money::new(Dec!(63.75), EUR);
+    /// let y = Dec!(8.5) * EUR;
+    /// let z = x / y;
+    /// assert_eq!(z.to_string(), "7.5")
+    /// ```
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * The operands have different `Currency` units.
     #[inline(always)]
     fn div(self, rhs: Self) -> Self::Output {
         <Self as Quantity>::div(self, rhs)
@@ -445,6 +517,19 @@ impl Div<Self> for Money {
 }
 
 impl fmt::Display for Money {
+    /// Returns a formatted string representation of `self`.
+    ///
+    /// The given format spec is applied to the numerial amount of `self` and
+    /// the resulting string is appended by a blank and the symbol of the
+    /// `Currency` unit of `self`.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Money, Quantity, EUR};
+    /// let m = Money::new(Dec!(38.5), EUR);
+    /// assert_eq!(format!("{:>+12.2}", m), "  +38.50 EUR");
+    /// ```
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         let tmp: String;
         let amnt_non_neg = self.amount().is_positive();
@@ -466,6 +551,20 @@ impl fmt::Display for Money {
 impl Mul<Money> for AmountT {
     type Output = Money;
 
+    /// Returns a new instance of `Money`, with the same `Currency` unit as
+    /// `rhs` and with an amount equal to `self * rhs.amount()`, rounded to the
+    /// number of fractional digits defined by `rhs.unit()`.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Quantity, HKD};
+    /// let x = Dec!(-1.5);
+    /// let y = Dec!(730.04) * HKD;
+    /// let z = x * y;
+    /// assert_eq!(z.amount(), Dec!(-1095.06));
+    /// assert_eq!(z.unit(), HKD);
+    /// ```
     #[inline(always)]
     fn mul(self, rhs: Money) -> Self::Output {
         Self::Output::new(
@@ -478,6 +577,9 @@ impl Mul<Money> for AmountT {
 impl Mul<AmountT> for Money {
     type Output = Self;
 
+    /// Returns a new instance of `Money`, with the same `Currency` unit as
+    /// `self` and with an amount equal to `self.amount() * rhs`, rounded to the
+    /// number of fractional digits defined by `self.unit()`.
     #[inline(always)]
     fn mul(self, rhs: AmountT) -> Self::Output {
         Self::Output::new(
@@ -490,6 +592,9 @@ impl Mul<AmountT> for Money {
 impl Div<AmountT> for Money {
     type Output = Self;
 
+    /// Returns a new instance of `Money`, with the same `Currency` unit as
+    /// `self` and with an amount equal to `self.amount() / rhs`, rounded to the
+    /// number of fractional digits defined by `self.unit()`.
     #[inline(always)]
     fn div(self, rhs: AmountT) -> Self::Output {
         Self::Output::new(
@@ -502,6 +607,26 @@ impl Div<AmountT> for Money {
 impl<TQ: Quantity> Mul<Rate<TQ, Money>> for Money {
     type Output = TQ;
 
+    /// Returns an instance of `TQ` eqivalent to `self` according to `rhs`.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Money, Quantity, USD};
+    /// # use quantities::prelude::*;
+    /// # #[quantity]
+    /// # #[ref_unit(Kilogram, "kg", KILO, "Reference unit of quantity `Mass`")]
+    /// # #[unit(Gram, "g", NONE, 0.001, "0.001·kg")]
+    /// # struct Mass {}
+    /// let d = Dec!(7.5) * USD;
+    /// let r = Rate::<Mass, Money>::new(Dec!(3.5), KILOGRAM, Dec!(10), USD);
+    /// let m = d * r;
+    /// assert_eq!(m, Dec!(2.625) * KILOGRAM);
+    /// ```
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * `rhs.per_unit()` is not identical to `self.unit()`
     fn mul(self, rhs: Rate<TQ, Money>) -> Self::Output {
         let amnt: AmountT =
             (self / rhs.per_unit().as_qty()) / rhs.per_unit_multiple();
@@ -512,6 +637,26 @@ impl<TQ: Quantity> Mul<Rate<TQ, Money>> for Money {
 impl<PQ: Quantity> Div<Rate<Money, PQ>> for Money {
     type Output = PQ;
 
+    /// Returns an instance of `PQ` eqivalent to `self` according to `rhs`.
+    ///
+    /// Example:
+    ///
+    /// ```rust
+    /// # use moneta::{Dec, Decimal, Money, Quantity, USD};
+    /// # use quantities::prelude::*;
+    /// # #[quantity]
+    /// # #[ref_unit(Kilogram, "kg", KILO, "Reference unit of quantity `Mass`")]
+    /// # #[unit(Gram, "g", NONE, 0.001, "0.001·kg")]
+    /// # struct Mass {}
+    /// let d = Dec!(7.5) * USD;
+    /// let r = Rate::<Money, Mass>::new(Dec!(3), USD, Dec!(10), KILOGRAM);
+    /// let m = d / r;
+    /// assert_eq!(m, Dec!(25) * KILOGRAM);
+    /// ```
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * `rhs.term_unit()` is not identical to `self.unit()`
     fn div(self, rhs: Rate<Money, PQ>) -> Self::Output {
         let amnt: AmountT =
             (self / rhs.term_unit().as_qty()) / rhs.term_amount();
