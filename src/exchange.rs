@@ -214,15 +214,17 @@ impl Mul<ExchangeRate> for ExchangeRate {
 
     /// Returns the "triangulated" exchange rate.
     ///
-    /// self.unit_currency == rhs.term_currency
-    ///     => self.term_currency / rhs.unit_currency
-    /// self.term_currency == rhs.unit_currency
-    ///     => rhs.term_currency / self.unit_currency
+    /// * self.unit_currency == rhs.term_currency => self.term_currency /
+    ///   rhs.unit_currency
+    /// * self.term_currency == rhs.unit_currency => rhs.term_currency /
+    ///   self.unit_currency
     ///
     /// ### Panics
     /// The function panics in the following cases:
     /// * No unit currency of a multiplicant does equal the term currency of the
     ///   other multiplicant.
+    /// * The unit currency of both multiplicants equals the term currency of
+    ///   the other multiplicant.
     fn mul(self, rhs: ExchangeRate) -> Self::Output {
         if self.unit_currency() == rhs.term_currency() {
             return ExchangeRate::new(
@@ -241,6 +243,49 @@ impl Mul<ExchangeRate> for ExchangeRate {
         } else {
             panic!(
                 "Can't multiply '{}/{}' and '{}/{}'.",
+                self.term_currency(),
+                self.unit_currency(),
+                rhs.term_currency(),
+                rhs.unit_currency(),
+            );
+        }
+    }
+}
+
+impl Div<ExchangeRate> for ExchangeRate {
+    type Output = Self;
+
+    /// Returns the "triangulated" exchange rate.
+    ///
+    /// * self.unit_currency == rhs.unit_currency => self.term_currency /
+    ///   rhs.term_currency
+    /// * self.term_currency == rhs.term_currency => rhs.unit_currency /
+    ///   self.unit_currency
+    ///
+    /// ### Panics
+    /// The function panics in the following cases:
+    /// * unit currency of dividend != unit currency of divisor and term
+    ///   currency of dividend != term currency of divisor
+    /// * unit currency of dividend == unit currency of divisor and term
+    ///   currency of dividend == term currency of divisor
+    fn div(self, rhs: ExchangeRate) -> Self::Output {
+        if self.unit_currency() == rhs.unit_currency() {
+            return ExchangeRate::new(
+                self.term_currency(),
+                1,
+                rhs.term_currency(),
+                self.rate() / rhs.rate(),
+            );
+        } else if self.term_currency() == rhs.term_currency() {
+            return ExchangeRate::new(
+                rhs.unit_currency(),
+                1,
+                self.unit_currency(),
+                self.rate() / rhs.rate(),
+            );
+        } else {
+            panic!(
+                "Can't divide '{}/{}' by '{}/{}'.",
                 self.term_currency(),
                 self.unit_currency(),
                 rhs.term_currency(),

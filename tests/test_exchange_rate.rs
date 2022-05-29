@@ -85,4 +85,30 @@ mod test_triangulation {
         let usd_2_hkd = ExchangeRate::new(USD, 1, HKD, Dec!(8.0047));
         let _r = usd_2_eur * usd_2_hkd;
     }
+
+    #[test]
+    fn test_div_rates() {
+        let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let usd_2_hkd = ExchangeRate::new(USD, 1, HKD, Dec!(8.0047));
+        let hkd_2_eur = usd_2_eur / usd_2_hkd;
+        assert_eq!(hkd_2_eur.unit_currency(), EUR);
+        assert_eq!(hkd_2_eur.unit_multiple(), 1);
+        assert_eq!(hkd_2_eur.term_currency(), HKD);
+        assert_eq!(hkd_2_eur.term_amount(), Dec!(0.122526));
+        let eur_2_usd = usd_2_eur.inverted();
+        let hkd_2_usd = usd_2_hkd.inverted();
+        let eur_2_hkd = eur_2_usd / hkd_2_usd;
+        assert_eq!(eur_2_hkd.unit_currency(), HKD);
+        assert_eq!(eur_2_hkd.unit_multiple(), 1);
+        assert_eq!(eur_2_hkd.term_currency(), EUR);
+        assert_eq!(eur_2_hkd.term_amount(), Dec!(8.161542));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_div_rates_fails() {
+        let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let eur_2_hkd = ExchangeRate::new(EUR, 1, HKD, Dec!(8.225));
+        let _r = usd_2_eur / eur_2_hkd;
+    }
 }
