@@ -69,5 +69,12 @@ mod test_triangulation {
         assert_eq!(usd_2_hkd.unit_multiple(), 1);
         assert_eq!(usd_2_hkd.term_currency(), HKD);
         assert_eq!(usd_2_hkd.term_amount(), Dec!(8.066916));
+        let eur_2_usd = usd_2_eur.inverted();
+        let hkd_2_eur = eur_2_hkd.inverted();
+        let usd_2_hkd = eur_2_usd * hkd_2_eur;
+        assert_eq!(usd_2_hkd.unit_currency(), HKD);
+        assert_eq!(usd_2_hkd.unit_multiple(), 1);
+        assert_eq!(usd_2_hkd.term_currency(), USD);
+        assert_eq!(usd_2_hkd.term_amount(), Dec!(0.123964));
     }
 }
