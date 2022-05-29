@@ -77,4 +77,12 @@ mod test_triangulation {
         assert_eq!(usd_2_hkd.term_currency(), USD);
         assert_eq!(usd_2_hkd.term_amount(), Dec!(0.123964));
     }
+
+    #[test]
+    #[should_panic]
+    fn test_mul_rates_fails() {
+        let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let usd_2_hkd = ExchangeRate::new(USD, 1, HKD, Dec!(8.0047));
+        let _r = usd_2_eur * usd_2_hkd;
+    }
 }
