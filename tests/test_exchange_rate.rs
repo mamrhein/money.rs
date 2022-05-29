@@ -80,10 +80,18 @@ mod test_triangulation {
 
     #[test]
     #[should_panic]
-    fn test_mul_rates_fails() {
+    fn test_mul_rates_fails_on_mismatched_currencies() {
         let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
         let usd_2_hkd = ExchangeRate::new(USD, 1, HKD, Dec!(8.0047));
         let _r = usd_2_eur * usd_2_hkd;
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_mul_rates_fails_on_same_currencies() {
+        let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let eur_2_usd = usd_2_eur.inverted();
+        let _r = usd_2_eur * eur_2_usd;
     }
 
     #[test]
@@ -106,9 +114,16 @@ mod test_triangulation {
 
     #[test]
     #[should_panic]
-    fn test_div_rates_fails() {
+    fn test_div_rates_fails_on_mismatched_currencies() {
         let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
         let eur_2_hkd = ExchangeRate::new(EUR, 1, HKD, Dec!(8.225));
         let _r = usd_2_eur / eur_2_hkd;
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_div_rates_fails_on_same_currencies() {
+        let usd_2_eur = ExchangeRate::new(USD, 1, EUR, Dec!(0.98078));
+        let _r = usd_2_eur / usd_2_eur;
     }
 }
