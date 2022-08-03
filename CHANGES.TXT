@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.3.1     Code hygiene based on rustc and clippy lints.
+
 0.3.0     Added ExchangeRate.
           Enhanced documentation.
 
