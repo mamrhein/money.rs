@@ -9,12 +9,54 @@
 
 #![doc = include_str ! ("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
+// activate some rustc lints
+#![deny(non_ascii_idents)]
+#![deny(unsafe_code)]
+#![warn(missing_debug_implementations)]
+#![warn(missing_docs)]
+#![warn(trivial_casts)]
+#![warn(unused)]
 #![allow(dead_code)]
+// activate some clippy lints
+#![warn(clippy::cast_possible_truncation)]
+#![warn(clippy::cast_possible_wrap)]
+#![warn(clippy::cast_precision_loss)]
+#![warn(clippy::cast_sign_loss)]
+#![warn(clippy::cognitive_complexity)]
+#![warn(clippy::decimal_literal_representation)]
+#![warn(clippy::enum_glob_use)]
+#![warn(clippy::equatable_if_let)]
+#![warn(clippy::fallible_impl_from)]
+#![warn(clippy::if_not_else)]
+#![warn(clippy::if_then_some_else_none)]
+#![warn(clippy::implicit_clone)]
+#![warn(clippy::integer_division)]
+#![warn(clippy::manual_assert)]
+#![warn(clippy::match_same_arms)]
+// #![warn(clippy::mismatching_type_param_order)] TODO: enable when got stable
+#![warn(clippy::missing_const_for_fn)]
+#![warn(clippy::missing_errors_doc)]
+#![warn(clippy::missing_panics_doc)]
+#![warn(clippy::multiple_crate_versions)]
+#![warn(clippy::multiple_inherent_impl)]
+#![warn(clippy::must_use_candidate)]
+#![warn(clippy::needless_pass_by_value)]
+#![warn(clippy::print_stderr)]
+#![warn(clippy::print_stdout)]
+#![warn(clippy::semicolon_if_nothing_returned)]
+#![warn(clippy::str_to_string)]
+#![warn(clippy::string_to_string)]
+#![warn(clippy::undocumented_unsafe_blocks)]
+#![warn(clippy::unicode_not_nfc)]
+#![warn(clippy::unimplemented)]
+#![warn(clippy::unseparated_literal_suffix)]
+#![warn(clippy::unused_self)]
+#![warn(clippy::unwrap_in_result)]
+#![warn(clippy::use_self)]
+#![warn(clippy::used_underscore_binding)]
+#![warn(clippy::wildcard_imports)]
 
 extern crate alloc;
-extern crate core;
-extern crate fpdec;
-extern crate quantities;
 
 use alloc::{format, string::String};
 #[doc(hidden)]
@@ -404,6 +446,7 @@ impl Quantity for Money {
     /// The given amount is rounded to the number of fractional decimal digits
     /// defined by the `Currency` unit.
     #[inline]
+    #[allow(clippy::cast_possible_wrap)]
     fn new(amount: AmountT, unit: Self::UnitType) -> Self {
         Self {
             amount: amount.round(unit.minor_unit() as i8),
@@ -535,14 +578,14 @@ impl fmt::Display for Money {
         let amnt_non_neg = self.amount().is_positive();
         let abs_amnt = self.amount().abs();
         if let Some(prec) = form.precision() {
-            tmp = format!("{:.*} {}", prec, abs_amnt, self.unit())
+            tmp = format!("{:.*} {}", prec, abs_amnt, self.unit());
         } else {
             tmp = format!(
                 "{:.*} {}",
                 self.unit().minor_unit() as usize,
                 abs_amnt,
                 self.unit()
-            )
+            );
         }
         form.pad_integral(amnt_non_neg, "", &tmp)
     }
@@ -604,7 +647,7 @@ impl Div<AmountT> for Money {
     }
 }
 
-impl<TQ: Quantity> Mul<Rate<TQ, Money>> for Money {
+impl<TQ: Quantity> Mul<Rate<TQ, Self>> for Money {
     type Output = TQ;
 
     /// Returns an instance of `TQ` eqivalent to `self` according to `rhs`.
@@ -627,14 +670,14 @@ impl<TQ: Quantity> Mul<Rate<TQ, Money>> for Money {
     /// ### Panics
     /// The function panics in the following cases:
     /// * `rhs.per_unit()` is not identical to `self.unit()`
-    fn mul(self, rhs: Rate<TQ, Money>) -> Self::Output {
+    fn mul(self, rhs: Rate<TQ, Self>) -> Self::Output {
         let amnt: AmountT =
             (self / rhs.per_unit().as_qty()) / rhs.per_unit_multiple();
         Self::Output::new(amnt * rhs.term_amount(), rhs.term_unit())
     }
 }
 
-impl<PQ: Quantity> Div<Rate<Money, PQ>> for Money {
+impl<PQ: Quantity> Div<Rate<Self, PQ>> for Money {
     type Output = PQ;
 
     /// Returns an instance of `PQ` eqivalent to `self` according to `rhs`.
@@ -657,7 +700,7 @@ impl<PQ: Quantity> Div<Rate<Money, PQ>> for Money {
     /// ### Panics
     /// The function panics in the following cases:
     /// * `rhs.term_unit()` is not identical to `self.unit()`
-    fn div(self, rhs: Rate<Money, PQ>) -> Self::Output {
+    fn div(self, rhs: Rate<Self, PQ>) -> Self::Output {
         let amnt: AmountT =
             (self / rhs.term_unit().as_qty()) / rhs.term_amount();
         Self::Output::new(amnt * rhs.per_unit_multiple(), rhs.per_unit())
@@ -680,6 +723,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cast_possible_wrap)]
     fn test_money_exceed_minor_unit() {
         let amnt: AmountT = Amnt!(7.905);
         let m = amnt * EUR;

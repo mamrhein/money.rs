@@ -55,28 +55,29 @@ impl ExchangeRate {
     /// * `unit_multiple` == 0
     /// * `term_amount` <= 0
     /// * adjusted unit multiple > 1_000_000_000
+    #[must_use]
     pub fn new(
         unit_currency: Currency,
         unit_multiple: u32,
         term_currency: Currency,
         term_amount: AmountT,
     ) -> Self {
-        if unit_currency == term_currency {
-            panic!("The currencies given must not be identical.")
-        }
-        if unit_multiple == 0 {
-            panic!("Unit multiple must be >= 1.")
-        }
-        if !term_amount.is_positive() {
-            panic!("Term amount must be > 0.")
-        }
+        assert!(
+            !(unit_currency == term_currency),
+            "The currencies given must not be identical."
+        );
+        assert!(unit_multiple != 0, "Unit multiple must be >= 1.");
+        assert!(term_amount.is_positive(), "Term amount must be > 0.");
         // adjust unit_multiple and term_amount so that unit_multiple is a power
         // to 10 and term_amount.magnitude >= -1
         let magn = Decimal::from(unit_multiple).magnitude()
             - min(0, term_amount.magnitude() + 1);
-        if magn < 0 || magn > 9 {
-            panic!("Adjusted unit multiple must be <= 1_000_000_000.")
-        }
+        assert!(
+            (0..=9).contains(&magn),
+            "Adjusted unit multiple must be <= 1_000_000_000."
+        );
+        #[allow(clippy::cast_possible_truncation)]
+        #[allow(clippy::cast_sign_loss)]
         Self {
             unit_currency,
             unit_multiple: ten_pow(magn as u8) as u32,
@@ -88,25 +89,28 @@ impl ExchangeRate {
 
     /// Currency to be converted from, aka base currency
     #[inline(always)]
-    pub fn unit_currency(&self) -> Currency {
+    #[must_use]
+    pub const fn unit_currency(&self) -> Currency {
         self.unit_currency
     }
 
     /// Amount of base currency
     #[inline(always)]
-    pub fn unit_multiple(&self) -> u32 {
+    #[must_use]
+    pub const fn unit_multiple(&self) -> u32 {
         self.unit_multiple
     }
 
     /// Currency to be converted to, aka price currency
     #[inline(always)]
-    pub fn term_currency(&self) -> Currency {
+    #[must_use]
+    pub const fn term_currency(&self) -> Currency {
         self.term_currency
     }
 
     /// Equivalent amount of term currency
     #[inline(always)]
-    pub fn term_amount(&self) -> AmountT {
+    pub const fn term_amount(&self) -> AmountT {
         self.term_amount
     }
 
@@ -139,8 +143,9 @@ impl ExchangeRate {
     }
 
     /// Returns the inversion of `self`.
-    pub fn inverted(&self) -> ExchangeRate {
-        ExchangeRate::new(
+    #[must_use]
+    pub fn inverted(&self) -> Self {
+        Self::new(
             self.term_currency,
             1,
             self.unit_currency,
@@ -158,19 +163,18 @@ impl Mul<Money> for ExchangeRate {
     /// The function panics in the following cases:
     /// * Currency of `rhs` is not equal to `self.unit_currency`.
     fn mul(self, rhs: Money) -> Self::Output {
-        if self.unit_currency() != rhs.unit() {
-            panic!(
-                "Can't divide '{}' by '{}'",
-                rhs.unit(),
-                self.unit_currency(),
-            );
-        }
+        assert!(
+            !(self.unit_currency() != rhs.unit()),
+            "Can't divide '{}' by '{}'",
+            rhs.unit(),
+            self.unit_currency()
+        );
         Self::Output::new(rhs.amount() * self.rate(), self.term_currency)
     }
 }
 
 impl Mul<ExchangeRate> for Money {
-    type Output = Money;
+    type Output = Self;
 
     /// Returns the equivalent of `self` in term currency.
     ///
@@ -178,19 +182,18 @@ impl Mul<ExchangeRate> for Money {
     /// The function panics in the following cases:
     /// * Currency of `self` is not equal to `rhs.unit_currency`.
     fn mul(self, rhs: ExchangeRate) -> Self::Output {
-        if self.unit() != rhs.unit_currency() {
-            panic!(
-                "Can't divide '{}' by '{}'",
-                self.unit(),
-                rhs.unit_currency(),
-            );
-        }
+        assert!(
+            !(self.unit() != rhs.unit_currency()),
+            "Can't divide '{}' by '{}'",
+            self.unit(),
+            rhs.unit_currency()
+        );
         Self::Output::new(self.amount() * rhs.rate(), rhs.term_currency)
     }
 }
 
 impl Div<ExchangeRate> for Money {
-    type Output = Money;
+    type Output = Self;
 
     /// Returns the equivalent of `rhs` in unit currency.
     ///
@@ -198,18 +201,17 @@ impl Div<ExchangeRate> for Money {
     /// The function panics in the following cases:
     /// * Currency of `self` is not equal to `rhs.term_currency`.
     fn div(self, rhs: ExchangeRate) -> Self::Output {
-        if self.unit() != rhs.term_currency() {
-            panic!(
-                "Can't divide '{}' by '{}'",
-                self.unit(),
-                rhs.term_currency(),
-            );
-        }
+        assert!(
+            !(self.unit() != rhs.term_currency()),
+            "Can't divide '{}' by '{}'",
+            self.unit(),
+            rhs.term_currency()
+        );
         Self::Output::new(self.amount() / rhs.rate(), rhs.unit_currency)
     }
 }
 
-impl Mul<ExchangeRate> for ExchangeRate {
+impl Mul<Self> for ExchangeRate {
     type Output = Self;
 
     /// Returns the "triangulated" exchange rate.
@@ -225,21 +227,21 @@ impl Mul<ExchangeRate> for ExchangeRate {
     ///   other multiplicant.
     /// * The unit currency of both multiplicants equals the term currency of
     ///   the other multiplicant.
-    fn mul(self, rhs: ExchangeRate) -> Self::Output {
+    fn mul(self, rhs: Self) -> Self::Output {
         if self.unit_currency() == rhs.term_currency() {
-            return ExchangeRate::new(
+            Self::new(
                 rhs.unit_currency(),
                 1,
                 self.term_currency(),
                 self.rate() * rhs.rate(),
-            );
+            )
         } else if self.term_currency() == rhs.unit_currency() {
-            return ExchangeRate::new(
+            Self::new(
                 self.unit_currency(),
                 1,
                 rhs.term_currency(),
                 self.rate() * rhs.rate(),
-            );
+            )
         } else {
             panic!(
                 "Can't multiply '{}/{}' and '{}/{}'.",
@@ -252,7 +254,7 @@ impl Mul<ExchangeRate> for ExchangeRate {
     }
 }
 
-impl Div<ExchangeRate> for ExchangeRate {
+impl Div<Self> for ExchangeRate {
     type Output = Self;
 
     /// Returns the "triangulated" exchange rate.
@@ -268,21 +270,21 @@ impl Div<ExchangeRate> for ExchangeRate {
     ///   currency of dividend != term currency of divisor
     /// * unit currency of dividend == unit currency of divisor and term
     ///   currency of dividend == term currency of divisor
-    fn div(self, rhs: ExchangeRate) -> Self::Output {
+    fn div(self, rhs: Self) -> Self::Output {
         if self.unit_currency() == rhs.unit_currency() {
-            return ExchangeRate::new(
+            Self::new(
                 self.term_currency(),
                 1,
                 rhs.term_currency(),
                 self.rate() / rhs.rate(),
-            );
+            )
         } else if self.term_currency() == rhs.term_currency() {
-            return ExchangeRate::new(
+            Self::new(
                 rhs.unit_currency(),
                 1,
                 self.unit_currency(),
                 self.rate() / rhs.rate(),
-            );
+            )
         } else {
             panic!(
                 "Can't divide '{}/{}' by '{}/{}'.",
