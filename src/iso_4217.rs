@@ -162,13 +162,13 @@ pub enum Currency {
     ETB,
     #[doc = "Euro"]
     #[doc = "Official currency in Åland Islands, Andorra, Austria, Belgium, \
-             Cyprus, Estonia, European Union, Finland, France, French Guiana, \
-             French Southern Territories (The), Germany, Greece, Guadeloupe, \
-             Holy See (The), Ireland, Italy, Latvia, Lithuania, Luxembourg, \
-             Malta, Martinique, Mayotte, Monaco, Montenegro, Netherlands \
-             (The), Portugal, Réunion, Saint Barthélemy, Saint Martin (French \
-             Part), Saint Pierre And Miquelon, San Marino, Slovakia, \
-             Slovenia, Spain"]
+             Croatia, Cyprus, Estonia, European Union, Finland, France, French \
+             Guiana, French Southern Territories (The), Germany, Greece, \
+             Guadeloupe, Holy See (The), Ireland, Italy, Latvia, Lithuania, \
+             Luxembourg, Malta, Martinique, Mayotte, Monaco, Montenegro, \
+             Netherlands (The), Portugal, Réunion, Saint Barthélemy, \
+             Saint Martin (French Part), Saint Pierre And Miquelon, \
+             San Marino, Slovakia, Slovenia, Spain"]
     EUR,
     #[doc = "Fiji Dollar"]
     #[doc = "Official currency in Fiji"]
@@ -208,7 +208,7 @@ pub enum Currency {
     #[doc = "Official currency in Honduras"]
     HNL,
     #[doc = "Kuna"]
-    #[doc = "Official currency in Croatia"]
+    #[doc = "Historic currency in Croatia"]
     HRK,
     #[doc = "Gourde"]
     #[doc = "Official currency in Haiti"]
@@ -456,7 +456,7 @@ pub enum Currency {
     #[doc = "Official currency in Tonga"]
     TOP,
     #[doc = "Turkish Lira"]
-    #[doc = "Official currency in Turkey"]
+    #[doc = "Official currency in Türkiye"]
     TRY,
     #[doc = "Trinidad and Tobago Dollar"]
     #[doc = "Official currency in Trinidad And Tobago"]
