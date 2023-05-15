@@ -13,6 +13,7 @@ use crate::{AmountT, Money, Mul, Quantity, SIPrefix, Unit};
 
 #[doc = "Unit of quantity `Money`."]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(::serde::Deserialize, ::serde::Serialize))]
 pub enum Currency {
     #[doc = "UAE Dirham"]
     #[doc = "Official currency in United Arab Emirates (The)"]

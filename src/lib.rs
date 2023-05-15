@@ -433,6 +433,7 @@ pub const ZWL: Currency = Currency::ZWL;
 /// assert_eq!(m.to_string(), "38.50 EUR");
 /// ```
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(::serde::Deserialize, ::serde::Serialize))]
 pub struct Money {
     amount: AmountT,
     unit: Currency,
