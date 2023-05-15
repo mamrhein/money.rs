@@ -21,3 +21,4 @@ serde = { version = "1", features = ["derive"], optional = true }
 [features]
 default = ["std"]
 std = []
+serde = ["dep:serde", "quantities/serde"]
