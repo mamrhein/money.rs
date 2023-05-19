@@ -41,7 +41,7 @@ jobs:
           shared-key: ubuntu-latest
       - name: 🛟 run cargo test
         run: |
-          cargo hack test --feature-powerset
+          cargo hack test --feature-powerset --optional-deps
   lint:
     needs: test
     runs-on: ubuntu-latest
