@@ -1,5 +1,7 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.3.3     Added CI jobs for cargo check, test and clippy (thx to Roms1383).
+
 0.3.2     Updated ISO 4217 currency data.
 
 0.3.1     Code hygiene based on rustc and clippy lints.
