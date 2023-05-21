@@ -1,4 +1,4 @@
-### Currency-safe computations with money amounts.
+## Currency-safe computations with money amounts.
 
 `Money` is a special type of quantity. Its unit type is known as `Currency`.
 
@@ -70,3 +70,18 @@ let rate = ExchangeRate::new(HKD, 10, EUR, Dec!(1.187253));
 let hkd = eur / rate;
 assert_eq!(hkd.to_string(), "148.33 HKD");
 ```
+
+## Crate features
+
+By default, only the feature `std` is enabled.
+
+### Ecosystem
+
+* **std** - When enabled, this will cause `moneta` to use the standard
+  library, so that conversion to string, formatting and printing are
+  available. When disabled, the use of crate `alloc` together with a
+  system-specific allocator is needed to use that functionality.
+
+### Optional dependencies
+
+* **serde** - When enabled, support for `serde` is enabled.
