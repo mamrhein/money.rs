@@ -7,13 +7,17 @@
 // $Source$
 // $Revision$
 
+use alloc::{borrow::ToOwned, string::String};
 use core::fmt;
 
 use crate::{AmountT, Money, Mul, Quantity, SIPrefix, Unit};
 
 #[doc = "Unit of quantity `Money`."]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(::serde::Deserialize, ::serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(::serde::Deserialize, ::serde::Serialize)
+)]
 pub enum Currency {
     #[doc = "UAE Dirham"]
     #[doc = "Official currency in United Arab Emirates (The)"]
@@ -163,13 +167,13 @@ pub enum Currency {
     ETB,
     #[doc = "Euro"]
     #[doc = "Official currency in Åland Islands, Andorra, Austria, Belgium, \
-             Croatia, Cyprus, Estonia, European Union, Finland, France, French \
-             Guiana, French Southern Territories (The), Germany, Greece, \
-             Guadeloupe, Holy See (The), Ireland, Italy, Latvia, Lithuania, \
-             Luxembourg, Malta, Martinique, Mayotte, Monaco, Montenegro, \
-             Netherlands (The), Portugal, Réunion, Saint Barthélemy, \
-             Saint Martin (French Part), Saint Pierre And Miquelon, \
-             San Marino, Slovakia, Slovenia, Spain"]
+             Croatia, Cyprus, Estonia, European Union, Finland, France, \
+             French Guiana, French Southern Territories (The), Germany, \
+             Greece, Guadeloupe, Holy See (The), Ireland, Italy, Latvia, \
+             Lithuania, Luxembourg, Malta, Martinique, Mayotte, Monaco, \
+             Montenegro, Netherlands (The), Portugal, Réunion, Saint \
+             Barthélemy, Saint Martin (French Part), Saint Pierre And \
+             Miquelon, San Marino, Slovakia, Slovenia, Spain"]
     EUR,
     #[doc = "Fiji Dollar"]
     #[doc = "Official currency in Fiji"]
@@ -257,7 +261,8 @@ pub enum Currency {
     #[doc = "Official currency in Comoros (The)"]
     KMF,
     #[doc = "North Korean Won"]
-    #[doc = "Official currency in Korea (The Democratic People’S Republic Of)"]
+    #[doc = "Official currency in Korea (The Democratic People’S Republic \
+             Of)"]
     KPW,
     #[doc = "Won"]
     #[doc = "Official currency in Korea (The Republic Of)"]
@@ -412,7 +417,8 @@ pub enum Currency {
     #[doc = "Official currency in Singapore"]
     SGD,
     #[doc = "Saint Helena Pound"]
-    #[doc = "Official currency in Saint Helena, Ascension And Tristan Da Cunha"]
+    #[doc = "Official currency in Saint Helena, Ascension And Tristan Da \
+             Cunha"]
     SHP,
     #[doc = "Leone"]
     #[doc = "Official currency in Sierra Leone"]
@@ -475,13 +481,14 @@ pub enum Currency {
     #[doc = "Official currency in Uganda"]
     UGX,
     #[doc = "US Dollar"]
-    #[doc = "Official currency in American Samoa, Bonaire, Sint Eustatius And \
-             Saba, British Indian Ocean Territory (The), Ecuador, El \
+    #[doc = "Official currency in American Samoa, Bonaire, Sint Eustatius \
+             And Saba, British Indian Ocean Territory (The), Ecuador, El \
              Salvador, Guam, Haiti, Marshall Islands (The), Micronesia \
              (Federated States Of), Northern Mariana Islands (The), Palau, \
              Panama, Puerto Rico, Timor-Leste, Turks And Caicos Islands \
-             (The), United States Minor Outlying Islands (The), United States \
-             Of America (The), Virgin Islands (British), Virgin Islands (U.S.)"]
+             (The), United States Minor Outlying Islands (The), United \
+             States Of America (The), Virgin Islands (British), Virgin \
+             Islands (U.S.)"]
     USD,
     #[doc = "US Dollar (Next day)"]
     #[doc = "Official currency in United States Of America (The)"]
@@ -527,8 +534,8 @@ pub enum Currency {
              Guinea-Bissau, Mali, Niger (The), Senegal, Togo"]
     XOF,
     #[doc = "CFP Franc"]
-    #[doc = "Official currency in French Polynesia, New Caledonia, Wallis And \
-             Futuna"]
+    #[doc = "Official currency in French Polynesia, New Caledonia, Wallis \
+             And Futuna"]
     XPF,
     #[doc = "Yemeni Rial"]
     #[doc = "Official currency in Yemen"]
@@ -902,11 +909,11 @@ impl fmt::Display for Currency {
 impl Unit for Currency {
     type QuantityType = Money;
 
-    fn iter<'a>() -> core::slice::Iter<'a, Self> {
-        Self::VARIANTS.iter()
+    fn iter() -> impl Iterator<Item = Self> {
+        Self::VARIANTS.iter().cloned()
     }
 
-    fn name(&self) -> &'static str {
+    fn name(&self) -> String {
         match self {
             Self::AED => "UAE Dirham",
             Self::AFN => "Afghani",
@@ -1075,9 +1082,10 @@ impl Unit for Currency {
             Self::ZMW => "Zambian Kwacha",
             Self::ZWL => "Zimbabwe Dollar",
         }
+        .to_owned()
     }
 
-    fn symbol(&self) -> &'static str {
+    fn symbol(&self) -> String {
         match self {
             Self::AED => "AED",
             Self::AFN => "AFN",
@@ -1248,6 +1256,7 @@ impl Unit for Currency {
             Self::ZMW => "ZMW",
             Self::ZWL => "ZWL",
         }
+        .to_owned()
     }
 
     fn si_prefix(&self) -> Option<SIPrefix> {
