@@ -1,5 +1,11 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.5.0     Incompatible changes following quantities v0.13!
+          Fns Currency::symbol and Currency::name now return String (instead
+          of &str).
+          Fns Currency::iter and Money::iter_units now iterate over Currency
+          (instead of &Currency).
+
 0.4.0     Added 'serde' support (thx to Roms1383).
 
 0.3.3     Added CI jobs for cargo check, test and clippy (thx to Roms1383).
