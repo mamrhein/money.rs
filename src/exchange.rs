@@ -66,10 +66,10 @@ impl ExchangeRate {
             !(unit_currency == term_currency),
             "The currencies given must not be identical."
         );
-        assert!(unit_multiple != 0, "Unit multiple must be >= 1.");
+        assert_ne!(unit_multiple, 0, "Unit multiple must be >= 1.");
         assert!(term_amount.is_positive(), "Term amount must be > 0.");
-        // adjust unit_multiple and term_amount so that unit_multiple is a power
-        // to 10 and term_amount.magnitude >= -1
+        // adjust unit_multiple and term_amount so that unit_multiple is a
+        // power to 10 and term_amount.magnitude >= -1
         let magn = Decimal::from(unit_multiple).magnitude()
             - min(0, term_amount.magnitude() + 1);
         assert!(
@@ -223,8 +223,8 @@ impl Mul<Self> for ExchangeRate {
     ///
     /// ### Panics
     /// The function panics in the following cases:
-    /// * No unit currency of a multiplicant does equal the term currency of the
-    ///   other multiplicant.
+    /// * No unit currency of a multiplicant does equal the term currency of
+    ///   the other multiplicant.
     /// * The unit currency of both multiplicants equals the term currency of
     ///   the other multiplicant.
     fn mul(self, rhs: Self) -> Self::Output {
@@ -305,8 +305,8 @@ mod tests {
     #[test]
     fn test_exchange_rate() {
         let rate = ExchangeRate::new(USD, 5, EUR, Amnt!(4.8307));
-        assert_eq!(rate.unit_currency(), Currency::USD);
-        assert_eq!(rate.term_currency(), Currency::EUR);
+        assert_eq!(rate.unit_currency(), USD);
+        assert_eq!(rate.term_currency(), EUR);
         assert_eq!(rate.unit_multiple(), 1);
         assert_eq!(rate.term_amount(), Amnt!(0.96614));
         assert_eq!(rate.rate(), Amnt!(0.96614));
