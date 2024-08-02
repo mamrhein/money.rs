@@ -63,7 +63,7 @@ impl ExchangeRate {
         term_amount: AmountT,
     ) -> Self {
         assert!(
-            !(unit_currency == term_currency),
+            unit_currency != term_currency,
             "The currencies given must not be identical."
         );
         assert_ne!(unit_multiple, 0, "Unit multiple must be >= 1.");
@@ -164,7 +164,7 @@ impl Mul<Money> for ExchangeRate {
     /// * Currency of `rhs` is not equal to `self.unit_currency`.
     fn mul(self, rhs: Money) -> Self::Output {
         assert!(
-            !(self.unit_currency() != rhs.unit()),
+            self.unit_currency() == rhs.unit(),
             "Can't divide '{}' by '{}'",
             rhs.unit(),
             self.unit_currency()
@@ -183,7 +183,7 @@ impl Mul<ExchangeRate> for Money {
     /// * Currency of `self` is not equal to `rhs.unit_currency`.
     fn mul(self, rhs: ExchangeRate) -> Self::Output {
         assert!(
-            !(self.unit() != rhs.unit_currency()),
+            self.unit() == rhs.unit_currency(),
             "Can't divide '{}' by '{}'",
             self.unit(),
             rhs.unit_currency()
@@ -202,7 +202,7 @@ impl Div<ExchangeRate> for Money {
     /// * Currency of `self` is not equal to `rhs.term_currency`.
     fn div(self, rhs: ExchangeRate) -> Self::Output {
         assert!(
-            !(self.unit() != rhs.term_currency()),
+            self.unit() == rhs.term_currency(),
             "Can't divide '{}' by '{}'",
             self.unit(),
             rhs.term_currency()

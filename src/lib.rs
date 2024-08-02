@@ -33,7 +33,7 @@
 #![warn(clippy::integer_division)]
 #![warn(clippy::manual_assert)]
 #![warn(clippy::match_same_arms)]
-// #![warn(clippy::mismatching_type_param_order)] TODO: enable when got stable
+#![warn(clippy::mismatching_type_param_order)]
 #![warn(clippy::missing_const_for_fn)]
 #![warn(clippy::missing_errors_doc)]
 #![warn(clippy::missing_panics_doc)]
@@ -83,14 +83,23 @@ mod iso_4217;
 
 static CURRENCY_REGISTRY: CurrencyRegistry = CurrencyRegistry::new();
 
+#[allow(clippy::multiple_inherent_impl)]
 impl Currency {
     /// Returns a newly registered `Currency` with the given attributes.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if
+    /// * the given symbol is empty or contains only white-space or non-ascii
+    ///   chars,
+    /// * a `Currency` with a key derived from the given symbol is already
+    ///   registered.
     #[inline]
     pub fn new(
         symbol: &str,
         name: &str,
         minor_units: u8,
-    ) -> Result<Currency, CurrencyKeyError> {
+    ) -> Result<Self, CurrencyKeyError> {
         CURRENCY_REGISTRY.register_currency(symbol, name, minor_units)
     }
 
@@ -131,19 +140,6 @@ impl Unit for Currency {
         None
     }
 }
-//
-// impl FromStr for Currency {
-//     type Err = CurrencyKeyError;
-//
-//     fn from_str(s: &str) -> Result<Self, Self::Err> {
-//         match CURRENCY_REGISTRY.get_currency_from_symbol(s) {
-//             Some(c) => Ok(c),
-//             None => Err(CurrencyKeyError(
-//                 "No currency with symbol '{s}' registered.".to_string(),
-//             )),
-//         }
-//     }
-// }
 
 impl fmt::Display for Currency {
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -153,11 +149,12 @@ impl fmt::Display for Currency {
 
 impl From<ISOCurrency> for Currency {
     fn from(curr: ISOCurrency) -> Self {
-        match Currency::from_symbol(&curr.symbol()) {
+        match Self::from_symbol(curr.symbol()) {
             Some(c) => c,
             None => {
-                Currency::new(curr.symbol(), curr.name(), curr.minor_unit())
-                    .unwrap()
+                let _ =
+                    Self::new(curr.symbol(), curr.name(), curr.minor_unit());
+                Self::from_iso_curr(curr)
             }
         }
     }

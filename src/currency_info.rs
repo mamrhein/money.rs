@@ -45,10 +45,10 @@ impl FromStr for CurrencyKey {
                 "Given code '{s}' is empty or contains only white-space or \
                  non-ascii chars."
             ))),
-            mut l @ _ => {
+            mut l => {
                 l = l.min(8_usize);
                 k[..l].copy_from_slice(&AsRef::<[u8]>::as_ref(&t)[..l]);
-                Ok(CurrencyKey(u64::from_be_bytes(k)))
+                Ok(Self(u64::from_be_bytes(k)))
             }
         }
     }
@@ -66,7 +66,7 @@ impl CurrencyInfo {
     #[inline]
     pub(crate) fn new(symbol: &str, name: &str, minor_unit: u8) -> Self {
         Self {
-            key: CurrencyKey::from_ascii(&symbol),
+            key: CurrencyKey::from_ascii(symbol),
             symbol: symbol.to_owned(),
             name: name.to_owned(),
             minor_unit,

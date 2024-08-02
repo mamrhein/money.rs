@@ -52,6 +52,7 @@ impl CurrencyRegistry {
         }
     }
 
+    #[allow(clippy::unwrap_in_result)]
     pub(crate) fn register_currency(
         &self,
         symbol: &str,
@@ -110,7 +111,7 @@ impl CurrencyRegistry {
                 let mut db = self.inner.write();
                 // Maybe another thread registered it in the meantime, so
                 // check again!
-                if db.currency_info_map.get(curr).is_none() {
+                if !db.currency_info_map.contains_key(curr) {
                     db.insert(*curr, &info);
                 };
                 info
@@ -118,6 +119,7 @@ impl CurrencyRegistry {
         }
     }
 
+    #[allow(clippy::unwrap_in_result)]
     pub(crate) fn get_currency_from_symbol(
         &self,
         sym: &str,
@@ -143,7 +145,7 @@ impl CurrencyRegistry {
                 let mut db = self.inner.write();
                 // Maybe another thread registered it in the meantime, so
                 // check again!
-                if db.currency_info_map.get(&curr).is_none() {
+                if !db.currency_info_map.contains_key(&curr) {
                     db.insert(curr, &info);
                 };
                 Some(curr)
@@ -162,6 +164,7 @@ pub struct Currency {
     key: CurrencyKey,
 }
 
+#[allow(clippy::multiple_inherent_impl)]
 impl Currency {
     /// Returns the `Currency` instance corresponding to the given
     /// `ISOCurrency` instance without registering it!
