@@ -14,7 +14,7 @@ categories = ["data-structures", "mathematics"]
 rust-version = "1.75.0"
 
 [dependencies]
-fpdec = "0.11.0"
+fpdec = "0.13.0"
 fpdec-core = "0.8.0"
 quantities = { version = "0.14", features = ["fpdec"] }
 serde = { version = "1", features = ["derive"], optional = true }
