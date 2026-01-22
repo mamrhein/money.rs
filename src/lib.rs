@@ -45,7 +45,6 @@
 #![warn(clippy::print_stdout)]
 #![warn(clippy::semicolon_if_nothing_returned)]
 #![warn(clippy::str_to_string)]
-#![warn(clippy::string_to_string)]
 #![warn(clippy::undocumented_unsafe_blocks)]
 #![warn(clippy::unicode_not_nfc)]
 #![warn(clippy::unimplemented)]
@@ -120,7 +119,6 @@ impl Unit for Currency {
 
     /// Returns `Some(curr)` where `curr.symbol()` == `symbol`, or `None` if
     /// there is no such currency.
-    #[must_use]
     fn from_symbol(symbol: &str) -> Option<Self> {
         CURRENCY_REGISTRY.get_currency_from_symbol(symbol)
     }
