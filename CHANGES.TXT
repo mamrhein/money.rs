@@ -1,5 +1,11 @@
 Version   Changes
 --------  --------------------------------------------------------------------
+0.6.0     Restructured impl of 'Currency' in order to support the creation of
+          custom currencies.
+          Updated fpdec requirement from 0.11 to 0.13.
+          Updated quantities requirement from 0.13 to 0.14.
+          Set msrv to 1.80.1.
+
 0.5.1     Updated fpdec requirement from 0.10 to 0.11.
           Set msrv to 1.75.0.
 
