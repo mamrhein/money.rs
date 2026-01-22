@@ -18,6 +18,7 @@ fpdec = "0.13.0"
 fpdec-core = "0.13.0"
 quantities = { version = "0.14.1", features = ["fpdec"] }
 serde = { version = "1", features = ["derive"], optional = true }
+synctools = { version = "0.3" }
 
 [dev-dependencies]
 serde = "1"

@@ -17,8 +17,8 @@ package "quantities" with feature "fpdec" (aliasing "AmountT" to "Decimal").
 addition, for each currency there is a constant named after the 3-character
 ISO 4217 code.
 
-`Currency` implements `quantities::Unit`, so all operations on units can be 
-applied to `Currency`. Especially, a `Currency` instance can be multiplied 
+`Currency` implements `quantities::Unit`, so all operations on units can be
+applied to `Currency`. Especially, a `Currency` instance can be multiplied
 with an `AmountT` to create a `Money` instance.
 
 Example:
@@ -28,7 +28,7 @@ Example:
 let amnt = Amnt!(17.95);
 let eur_amnt = amnt * EUR;
 assert_eq!(eur_amnt.amount(), amnt);
-assert_eq!(eur_amnt.unit(), Currency::EUR);
+assert_eq!(eur_amnt.unit(), EUR);
 ```
 
 `Money` implements trait `quantities::Quantity`, so all operations on
