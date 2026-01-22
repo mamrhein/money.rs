@@ -11,7 +11,7 @@ documentation = "https://docs.rs/moneta/"
 license-file = "LICENSE.TXT"
 keywords = ["money", "currency", "exchange"]
 categories = ["data-structures", "mathematics"]
-rust-version = "1.75.0"
+rust-version = "1.80.1"
 
 [dependencies]
 fpdec = "0.13.0"
