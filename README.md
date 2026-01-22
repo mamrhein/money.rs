@@ -4,18 +4,41 @@
 
 Money differs from physical quantities mainly in two aspects:
 
-* Money amounts are discrete. For each currency there is a smallest fraction
+- Money amounts are discrete. For each currency there is a smallest fraction
   that can not be split further.
 
-* The relation between different currencies is not fixed, instead, it varies
+- The relation between different currencies is not fixed, instead, it varies
   over time.
 
 This package provides types to deal with these specifics. It is based an the
 package "quantities" with feature "fpdec" (aliasing "AmountT" to "Decimal").
 
-`Currency` is an enumeration of all currencies defined in ISO 4217. In
-addition, for each currency there is a constant named after the 3-character
-ISO 4217 code.
+The currencies defined in ISO 4217 are listed in an enumeration called 
+'ISOCurrency'. For each of these currencies there is a constant named after 
+the 3-character ISO 4217 code.
+
+Example:
+
+```rust
+# use moneta::{Currency, HKD, Unit};
+assert_eq!(HKD.symbol(), "HKD");
+assert_eq!(HKD.name(), "Hong Kong Dollar");
+assert_eq!(HKD.minor_unit(), 2);
+```
+
+Additional currencies can be created and registered by calling `Currency::new`,
+giving a symbol, a name and the number of minor units (as power of 10). The
+symbol must be unique, i.e. different from any currency already registered.
+
+Example:
+
+```rust
+# use moneta::{Currency, Unit};
+let btc = Currency::new("BTC", "Bitcoin", 7).unwrap();
+assert_eq!(btc.symbol(), "BTC");
+assert_eq!(btc.name(), "Bitcoin");
+assert_eq!(btc.minor_unit(), 7);
+```
 
 `Currency` implements `quantities::Unit`, so all operations on units can be
 applied to `Currency`. Especially, a `Currency` instance can be multiplied
@@ -77,11 +100,11 @@ By default, only the feature `std` is enabled.
 
 ### Ecosystem
 
-* **std** - When enabled, this will cause `moneta` to use the standard
+- **std** - When enabled, this will cause `moneta` to use the standard
   library, so that conversion to string, formatting and printing are
   available. When disabled, the use of crate `alloc` together with a
   system-specific allocator is needed to use that functionality.
 
 ### Optional dependencies
 
-* **serde** - When enabled, support for `serde` is enabled.
+- **serde** - When enabled, support for `serde` is enabled.
