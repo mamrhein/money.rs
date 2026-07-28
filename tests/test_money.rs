@@ -53,6 +53,95 @@ mod test_money_formatting {
 }
 
 #[cfg(test)]
+mod test_money_zero_sign {
+    use moneta::{Dec, Decimal, Money, Quantity, EUR, USD, UYW, VUV};
+    use quantities::prelude::*;
+
+    // A generic quantity, used as the reference oracle: the crate-level
+    // `Quantity` Display (in the `quantities` crate) is the behaviour
+    // `Money`'s own Display is meant to mirror.
+    #[quantity]
+    #[ref_unit(Kilogram, "kg", KILO, "ref")]
+    #[unit(Gram, "g", NONE, 0.001, "0.001 kg")]
+    struct Mass {}
+
+    // A zero amount has no sign, so its formatted form must never start
+    // with '-', and the '+' flag must yield '+', not '-'.
+    #[test]
+    fn test_zero_has_no_negative_sign() {
+        let zero = Money::new(Dec!(0.00), EUR);
+        assert_eq!(zero.to_string(), "0.00 EUR");
+        assert_eq!(format!("{}", zero), "0.00 EUR");
+        assert_eq!(format!("{:+}", zero), "+0.00 EUR");
+        assert_eq!(format!("{: }", zero), "0.00 EUR");
+        // Minor unit other than 2 (UYW: 4, VUV: 0).
+        assert_eq!((Dec!(0) * UYW).to_string(), "0.0000 UYW");
+        assert_eq!(format!("{:+}", Dec!(0) * VUV), "+0 VUV");
+    }
+
+    // Zero reached by arithmetic must format identically to a literal zero;
+    // the amount type has no negative zero to leak a stray sign.
+    #[test]
+    fn test_arithmetic_zero_has_no_sign() {
+        let sub = Dec!(5.00) * EUR - Dec!(5.00) * EUR;
+        assert_eq!(sub.to_string(), "0.00 EUR");
+        let neg_times_zero = Dec!(-1) * (Dec!(0.00) * EUR);
+        assert_eq!(neg_times_zero.to_string(), "0.00 EUR");
+    }
+
+    // Width, fill, precision and the '+' flag all compose correctly on zero.
+    #[test]
+    fn test_zero_with_format_spec() {
+        let zero = Money::new(Dec!(0.00), EUR);
+        assert_eq!(format!("{:*>+12.2}", zero), "***+0.00 EUR");
+        assert_eq!(format!("{:>10.0}", zero), "     0 EUR");
+        assert_eq!(format!("{:<+15.4}", zero), "+0.0000 EUR    ");
+    }
+
+    // Non-zero values keep their sign (regression guard for the fix).
+    #[test]
+    fn test_nonzero_sign_unchanged() {
+        assert_eq!((Dec!(12.50) * EUR).to_string(), "12.50 EUR");
+        assert_eq!((Dec!(-12.50) * EUR).to_string(), "-12.50 EUR");
+        assert_eq!(format!("{:+}", Dec!(12.50) * EUR), "+12.50 EUR");
+        // A truly negative amount that rounds to zero only at the requested
+        // display precision keeps its sign (taken from the real value).
+        let small_neg = Money::new(Dec!(-0.01), EUR);
+        assert_eq!(format!("{:.1}", small_neg), "-0.0 EUR");
+        assert_eq!(format!("{:.0}", small_neg), "-0 EUR");
+    }
+
+    // Leading sign character produced by a formatted value, or None.
+    fn sign_of(s: &str) -> Option<char> {
+        match s.chars().next() {
+            Some(c @ ('+' | '-')) => Some(c),
+            _ => None,
+        }
+    }
+
+    // `Money` Display must agree with the generic `Quantity` Display on the
+    // sign it emits for every amount, with and without the '+' flag.
+    #[test]
+    fn test_sign_parity_with_generic_quantity() {
+        let amounts = [Dec!(0), Dec!(12.50), Dec!(-12.50), Dec!(0.30)];
+        for a in amounts {
+            let money = a * USD;
+            let qty = a * KILOGRAM;
+            assert_eq!(
+                sign_of(&format!("{}", money)),
+                sign_of(&format!("{}", qty)),
+                "plain sign mismatch for {a}"
+            );
+            assert_eq!(
+                sign_of(&format!("{:+}", money)),
+                sign_of(&format!("{:+}", qty)),
+                "'+' sign mismatch for {a}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
 mod test_money_ops {
     use moneta::{Dec, Decimal, Quantity, USD, UYW};
 

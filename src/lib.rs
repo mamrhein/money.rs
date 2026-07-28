@@ -72,7 +72,7 @@ pub use exchange::ExchangeRate;
 use fpdec::{DivRounded, MulRounded, Round};
 pub use iso_4217::ISOCurrency;
 pub use quantities::{
-    Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
+    AMNT_ZERO, Amnt, AmountT, Dec, Decimal, Quantity, Rate, SIPrefix, Unit,
 };
 
 mod currency;
@@ -698,7 +698,7 @@ impl fmt::Display for Money {
     /// ```
     fn fmt(&self, form: &mut fmt::Formatter<'_>) -> fmt::Result {
         let tmp: String;
-        let amnt_non_neg = self.amount().is_positive();
+        let amnt_non_neg = self.amount() >= AMNT_ZERO;
         let abs_amnt = self.amount().abs();
         if let Some(prec) = form.precision() {
             tmp = format!("{:.*} {}", prec, abs_amnt, self.unit());
